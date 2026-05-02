@@ -40,10 +40,8 @@ jobs:
         env:
           DOCKER_TLS_CERTDIR: ""
         options: "--privileged"
-        ports:
-          - 2375:2375
     env:
-      DOCKER_HOST: tcp://localhost:2375
+      DOCKER_HOST: tcp://dind:2375
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
@@ -51,6 +49,12 @@ jobs:
         run: |
           curl -fsSL "${{ env.DOCKER_CLI_URL }}" -o /tmp/docker.tgz
           tar xzf /tmp/docker.tgz --strip-components=1 -C /usr/local/bin docker/docker
+          echo "Waiting for DinD (up to 60s)..."
+          for i in $(seq 1 30); do
+            docker version > /dev/null 2>&1 && echo "Docker ready." && break
+            printf "  attempt %d/30 – waiting 2s...\n" "$i"
+            sleep 2
+          done
           docker version
 
       - name: Build (amd64)
@@ -73,10 +77,8 @@ jobs:
         env:
           DOCKER_TLS_CERTDIR: ""
         options: "--privileged"
-        ports:
-          - 2375:2375
     env:
-      DOCKER_HOST: tcp://localhost:2375
+      DOCKER_HOST: tcp://dind:2375
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
@@ -94,6 +96,12 @@ jobs:
           curl -fsSL https://github.com/docker/buildx/releases/download/v0.19.3/buildx-v0.19.3.linux-amd64 \
             -o ~/.docker/cli-plugins/docker-buildx
           chmod +x ~/.docker/cli-plugins/docker-buildx
+          echo "Waiting for DinD (up to 60s)..."
+          for i in $(seq 1 30); do
+            docker version > /dev/null 2>&1 && echo "Docker ready." && break
+            printf "  attempt %d/30 – waiting 2s...\n" "$i"
+            sleep 2
+          done
           docker buildx version
 
       - name: Set up QEMU (arm64 emulation)
