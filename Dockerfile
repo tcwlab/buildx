@@ -3,7 +3,7 @@
 #
 # Spezialisiertes CI-Container-Image für Build- und Publish-Jobs.
 # Enthält genau das, was Forgejo-CI-Jobs für docker build / buildx brauchen:
-#   - Docker CLI 29.x  (von docker:29-cli, Alpine 3.23)
+#   - Docker CLI 29.x  (von dhi.io/docker:29-cli — Docker Hardened Image)
 #   - buildx 0.33.0    (von docker/buildx-bin, multi-arch aware)
 #   - git              (für Shell-basiertes Checkout in container:-Jobs)
 #
@@ -16,7 +16,7 @@
 
 FROM docker/buildx-bin:0.33.0 AS buildx-bin
 
-FROM docker:29-cli AS release
+FROM dhi.io/docker:29-cli AS release
 
 COPY --from=buildx-bin /buildx /usr/local/lib/docker/cli-plugins/docker-buildx
 

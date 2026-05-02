@@ -6,8 +6,8 @@
 # Docker CLI + buildx inline installiert. Einzige Ausnahme vom
 # "kein Inline-Install"-Prinzip — gilt nur für dieses Meta-Image selbst.
 #
-# Versionierung: Tag = buildx-Version (z.B. v0.19.3)
-#   → tcwlab/buildx:0.19.3 + tcwlab/buildx:latest
+# Versionierung: Tag = buildx-Version (z.B. v0.33.0)
+#   → tcwlab/buildx:0.33.0 + tcwlab/buildx:latest
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: ci
@@ -45,6 +45,11 @@ jobs:
           tar xzf /tmp/docker.tgz --strip-components=1 -C /usr/local/bin docker/docker
           docker version
 
+      - name: DHI Login
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" \
+            | docker login dhi.io --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
       - name: Build (amd64)
         run: docker build -t "${{ env.IMAGE }}:test" .
 
@@ -76,7 +81,7 @@ jobs:
           curl -fsSL "${{ env.DOCKER_CLI_URL }}" -o /tmp/docker.tgz
           tar xzf /tmp/docker.tgz --strip-components=1 -C /usr/local/bin docker/docker
           mkdir -p ~/.docker/cli-plugins
-          curl -fsSL https://github.com/docker/buildx/releases/download/v0.19.3/buildx-v0.19.3.linux-amd64 \
+          curl -fsSL https://github.com/docker/buildx/releases/download/v0.33.0/buildx-v0.33.0.linux-amd64 \
             -o ~/.docker/cli-plugins/docker-buildx
           chmod +x ~/.docker/cli-plugins/docker-buildx
           docker buildx version
@@ -93,6 +98,11 @@ jobs:
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" \
             | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: DHI Login
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" \
+            | docker login dhi.io --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build & Push (multi-arch)
         run: |
