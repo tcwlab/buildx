@@ -69,7 +69,7 @@ jobs:
             -H "Authorization: token ${FORGEJO_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "${PAYLOAD}" \
-            "https://git.mon.k8b.co/api/v1/repos/${{ GITHUB_REPOSITORY }}/tags")
+            "https://git.mon.k8b.co/api/v1/repos/${GITHUB_REPOSITORY}/tags")
           echo "Created tag ${TAG} -> HTTP ${HTTP}"
 
   # ---------------------------------------------------------------------------
