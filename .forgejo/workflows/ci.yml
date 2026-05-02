@@ -40,8 +40,10 @@ jobs:
         env:
           DOCKER_TLS_CERTDIR: ""
         options: "--privileged"
+        ports:
+          - 2375:2375
     env:
-      DOCKER_HOST: tcp://dind:2375
+      DOCKER_HOST: tcp://localhost:2375
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
@@ -71,8 +73,10 @@ jobs:
         env:
           DOCKER_TLS_CERTDIR: ""
         options: "--privileged"
+        ports:
+          - 2375:2375
     env:
-      DOCKER_HOST: tcp://dind:2375
+      DOCKER_HOST: tcp://localhost:2375
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
