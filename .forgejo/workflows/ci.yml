@@ -1,12 +1,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # chameleon-ci / buildx — Build & Publish
 #
-# Bootstrap-Image: kann sich nicht selbst als CI-Container verwenden
-# (Chicken-and-egg). Deshalb: Host-Runner + DinD als Service +
-# Docker CLI inline installiert. Einzige Ausnahme vom
-# "kein Inline-Install"-Prinzip — gilt nur für dieses Meta-Image selbst.
+# Bootstrap-Image: kann sich nicht selbst als CI-Container verwenden.
+# Host-Runner + DinD als Service + Docker CLI inline installiert.
 #
-# Versionierung: Tag = <tool-version>-<sha8>  (z.B. v2.12.0-f83dc49e)
+# Release-Job: ubuntu-22.04, Docker CLI + buildx, DinD via runner-net.
+# Versionierung: <tool-version>-<sha8>  (z.B. 2.12.0-f83dc49e)
 #   → tcwlab/buildx:<version>-<sha8>  immutable
 #   → tcwlab/buildx:<version>          float
 #   → tcwlab/buildx:latest             float
@@ -17,7 +16,6 @@ name: ci
 on:
   push:
     branches: [main, "claude/*"]
-    tags: ["v*-*"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -56,58 +54,31 @@ jobs:
           docker run --rm "${{ env.IMAGE }}:test" git --version
 
   # ---------------------------------------------------------------------------
-  auto-tag:
-    name: Auto-Tag Release
+  release:
+    name: Release — Multi-Arch Push + Git-Tag
     runs-on: ubuntu-22.04
     needs: [build-test]
     if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: https://data.forgejo.org/actions/checkout@v4
-
-      - name: Create release tag
-        env:
-          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
-        run: |
-          TOOL_VER=$(grep '^FROM docker/buildx-bin:' Dockerfile | awk '{print $2}' | cut -d: -f2)
-          SHA8="${GITHUB_SHA:0:8}"
-          TAG="v${TOOL_VER}-${SHA8}"
-          PAYLOAD=$(printf '{"tag_name":"%s","target":"%s"}' "${TAG}" "${GITHUB_SHA}")
-          HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            -H "Authorization: token ${FORGEJO_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "${PAYLOAD}" \
-            "https://git.mon.k8b.co/api/v1/repos/${GITHUB_REPOSITORY}/tags")
-          echo "Created tag ${TAG} -> HTTP ${HTTP}"
-
-  # ---------------------------------------------------------------------------
-  publish:
-    name: Publish to Docker Hub (linux/amd64 + linux/arm64)
-    runs-on: ubuntu-22.04
-    needs: [build-test]
-    if: startsWith(github.ref, 'refs/tags/v')
     env:
       DOCKER_HOST: tcp://docker-in-docker:2375
-      DOCKER_BUILDKIT: "1"
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
-      - name: Extract versions from tag
+      - name: Extract version
         id: version
         run: |
-          # Tag format: v<tool-version>-<sha8>, e.g. v2.12.0-f83dc49e
-          TAG="${GITHUB_REF#refs/tags/v}"
-          TOOL_VER="${TAG%-*}"
-          SHA="${TAG##*-}"
-          echo "tool_version=${TOOL_VER}" >> "$GITHUB_OUTPUT"
-          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          VER=$(grep '^FROM docker/buildx-bin:' Dockerfile | awk '{print $2}' | cut -d: -f2)
+          SHA8="${GITHUB_SHA:0:8}"
+          echo "tool_version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "sha8=${SHA8}" >> "$GITHUB_OUTPUT"
+          echo "Releasing ${{ env.IMAGE }}:${VER}-${SHA8}"
 
       - name: Install Docker CLI + buildx
         run: |
           curl -fsSL "${{ env.DOCKER_CLI_URL }}" -o /tmp/docker.tgz
           tar xzf /tmp/docker.tgz --strip-components=1 -C /usr/local/bin docker/docker
           mkdir -p ~/.docker/cli-plugins
-          curl -fsSL https://github.com/docker/buildx/releases/download/v0.19.3/buildx-v0.19.3.linux-amd64 \
-            -o ~/.docker/cli-plugins/docker-buildx
+          curl -fsSL "https://github.com/docker/buildx/releases/download/v0.19.3/buildx-v0.19.3.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
           chmod +x ~/.docker/cli-plugins/docker-buildx
           docker buildx version
 
@@ -127,11 +98,26 @@ jobs:
       - name: Build & Push (multi-arch)
         run: |
           VER="${{ steps.version.outputs.tool_version }}"
-          SHA="${{ steps.version.outputs.sha }}"
+          SHA8="${{ steps.version.outputs.sha8 }}"
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            -t "${{ env.IMAGE }}:${VER}-${SHA}" \
+            -t "${{ env.IMAGE }}:${VER}-${SHA8}" \
             -t "${{ env.IMAGE }}:${VER}" \
             -t "${{ env.IMAGE }}:latest" \
             --push \
             .
+
+      - name: Create Git-Tag
+        env:
+          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+        run: |
+          VER="${{ steps.version.outputs.tool_version }}"
+          SHA8="${{ steps.version.outputs.sha8 }}"
+          TAG="v${VER}-${SHA8}"
+          PAYLOAD=$(printf '{"tag_name":"%s","target":"%s"}' "${TAG}" "${GITHUB_SHA}")
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Authorization: token ${FORGEJO_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "${PAYLOAD}" \
+            "https://git.mon.k8b.co/api/v1/repos/${GITHUB_REPOSITORY}/tags")
+          echo "Git-Tag ${TAG} -> HTTP ${HTTP}"
