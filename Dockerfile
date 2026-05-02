@@ -25,6 +25,9 @@ FROM dhi.io/alpine-base:3.23 AS release
 COPY --from=docker-source /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=buildx-bin /buildx /usr/local/lib/docker/cli-plugins/docker-buildx
 
+# DHI alpine-base runs as non-root by default — switch to root for package ops
+USER root
+
 # hadolint ignore=DL3018
 RUN chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx \
     && apk upgrade --no-cache \
