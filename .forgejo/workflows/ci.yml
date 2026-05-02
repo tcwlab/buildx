@@ -61,6 +61,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     env:
       DOCKER_HOST: tcp://docker-in-docker:2375
+      DOCKER_BUILDKIT: "1"
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
 
