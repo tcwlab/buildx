@@ -18,12 +18,16 @@ FROM docker/buildx-bin:0.19.3 AS buildx-bin
 
 FROM docker:27-cli AS release
 
-COPY --from=buildx-bin /buildx /root/.docker/cli-plugins/docker-buildx
+COPY --from=buildx-bin /buildx /usr/local/lib/docker/cli-plugins/docker-buildx
 
 # hadolint ignore=DL3018
-RUN chmod +x /root/.docker/cli-plugins/docker-buildx \
+RUN chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx \
+    && apk upgrade --no-cache \
     && apk add --no-cache git \
-    && docker buildx version
+    && docker buildx version \
+    && addgroup -S ci \
+    && adduser -S -G ci ci
 
+USER ci
 ENTRYPOINT []
 CMD ["sh"]

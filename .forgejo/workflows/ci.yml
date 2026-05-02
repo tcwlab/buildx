@@ -99,6 +99,8 @@ jobs:
           VER="${{ steps.version.outputs.version }}"
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
+            --sbom=true \
+            --provenance=mode=max \
             -t "${{ env.IMAGE }}:latest" \
             -t "${{ env.IMAGE }}:${VER}" \
             --push \
