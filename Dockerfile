@@ -1,11 +1,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # tcwlab/buildx — Docker CLI + buildx plugin + git
 #
-# Spezialisiertes CI-Container-Image für Build- und Publish-Jobs.
-# Enthält genau das, was Forgejo-CI-Jobs für docker build / buildx brauchen:
-#   - Docker CLI 29.x  (von dhi.io/docker:29-cli — Docker Hardened Image)
-#   - buildx 0.33.0    (von docker/buildx-bin, multi-arch aware)
-#   - git              (für Shell-basiertes Checkout in container:-Jobs)
+# Dreistufiger Build:
+#   1. docker/buildx-bin:0.33.0      → buildx-Binary
+#   2. dhi.io/docker:29-cli          → Docker-CLI-Binary (distroless, nur Quelle)
+#   3. dhi.io/alpine-base:3.23       → Runtime-Base (DHI-gehärtet, hat Shell + apk)
+#
+# dhi.io/docker:29-cli ist distroless (kein /bin/sh) → daher nur als Quell-Stage,
+# nie als Runtime-Base für RUN-Befehle verwendbar.
 #
 # Kein Node.js — Checkout läuft per Shell (git init + git fetch).
 #
@@ -16,8 +18,11 @@
 
 FROM docker/buildx-bin:0.33.0 AS buildx-bin
 
-FROM dhi.io/docker:29-cli AS release
+FROM dhi.io/docker:29-cli AS docker-source
 
+FROM dhi.io/alpine-base:3.23 AS release
+
+COPY --from=docker-source /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=buildx-bin /buildx /usr/local/lib/docker/cli-plugins/docker-buildx
 
 # hadolint ignore=DL3018
