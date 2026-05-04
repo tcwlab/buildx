@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# chameleon-ci / buildx — Build & Publish
+# tcwlab / buildx — Build & Publish
 #
 # Bootstrap-Image: kann sich nicht selbst als CI-Container verwenden.
 # Host-Runner + DinD als Service + Docker CLI inline installiert.
