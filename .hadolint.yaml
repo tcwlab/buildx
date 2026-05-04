@@ -1,8 +1,8 @@
-# hadolint-Konfiguration für tcwlab/buildx
+# hadolint configuration for tcwlab/buildx
 #
 # DL3018: Pin versions in apk add
-# Alpine-Images pinnen bewusst keine apk-Paketversionen, da sie das
-# Alpine-Repository als Source-of-Truth verwenden und nur mit apk upgrade
-# aktualisiert werden. Version-Pinning würde bei Alpine-Releases brechen.
+# Alpine images intentionally do not pin apk package versions, as they use the
+# Alpine repository as the source of truth and update only with apk upgrade.
+# Version pinning would break across Alpine releases.
 ignore:
   - DL3018
