@@ -1,7 +1,7 @@
 # tcwlab/buildx
 
 > Docker CLI 29 + Buildx plugin 0.33.0 for multi-architecture container builds inside Forgejo CI `container:` jobs.
-> Part of the [tcwlab](https://git.mon.k8b.co/tcwlab) open-source CI/CD toolkit.
+> Part of the [tcwlab](https://github.com/tcwlab) open-source CI/CD toolkit.
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/tcwlab/buildx?label=pulls)](https://hub.docker.com/r/tcwlab/buildx)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -11,11 +11,11 @@
 ## Quick start
 
 ```bash
-docker pull tcwlab/buildx:0.33.0
+docker pull tcwlab/buildx:latest
 
 # Check versions
-docker run --rm tcwlab/buildx:0.33.0 docker buildx version
-docker run --rm tcwlab/buildx:0.33.0 git --version
+docker run --rm tcwlab/buildx:latest docker buildx version
+docker run --rm tcwlab/buildx:latest git --version
 ```
 
 Or as a Forgejo / GitHub-Actions container job:
@@ -24,7 +24,7 @@ Or as a Forgejo / GitHub-Actions container job:
 build:
   runs-on: ubuntu-22.04
   container:
-    image: tcwlab/buildx:0.33.0
+    image: tcwlab/buildx:latest
     env:
       DOCKER_HOST: tcp://docker-in-docker:2375
   steps:
@@ -52,9 +52,15 @@ build:
 
 The image includes Git for shell-based checkout in `container:` jobs — no need for Node.js or `actions/checkout`.
 
+> Quick-start examples use `:latest` so you can try the image immediately. For
+> production CI pipelines, pin a concrete tag — see [Tags](#tags) below.
+
 ---
 
 ## Tags
+
+> Version numbers below are illustrative. For the current set of tags, see
+> [Docker Hub tags](https://hub.docker.com/r/tcwlab/buildx/tags).
 
 | Tag | Description |
 |-----|-------------|
@@ -157,10 +163,8 @@ Most CI runners (GitHub Actions, Forgejo cloud runners) include QEMU pre-install
 
 ## Source & Issues
 
-- **Forgejo**: [git.mon.k8b.co/tcwlab/buildx](https://git.mon.k8b.co/tcwlab/buildx)
-- **GitHub Mirror**: [github.com/tcwlab/buildx](https://github.com/tcwlab/buildx)
-
-Report bugs or feature requests via Forgejo issues.
+- **Source**: [github.com/tcwlab/buildx](https://github.com/tcwlab/buildx)
+- **Issues**: [github.com/tcwlab/buildx/issues](https://github.com/tcwlab/buildx/issues)
 
 ---
 

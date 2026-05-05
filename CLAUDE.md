@@ -1,8 +1,8 @@
 # buildx — Repository Context
 
 > **Onboarding handshake:** Read in this order:
-> 1. [`Projects/CLAUDE.md`](https://git.mon.k8b.co/) (global standards)
-> 2. [`tcwlab/CLAUDE.md`](https://git.mon.k8b.co/tcwlab/) (toolchain context)
+> 1. `Projects/CLAUDE.md` (global standards, workspace-local)
+> 2. `tcwlab/CLAUDE.md` (toolchain context, workspace-local)
 > 3. This file (buildx-specific)
 
 ---
@@ -21,7 +21,7 @@ Primary consumers are the `tcwlab` image repositories themselves (`betterlint`, 
 
 ## What's inside?
 
-[Dockerfile](https://git.mon.k8b.co/tcwlab/buildx/src/branch/main/Dockerfile):
+[Dockerfile](https://github.com/tcwlab/buildx/blob/main/Dockerfile):
 
 - **Stage 1 — `buildx-bin`**: `docker/buildx-bin:0.33.0` as the source for the Buildx plugin binary.
 - **Stage 2 — `release`**: `docker:29-cli` as the base. Copies the Buildx binary to `/root/.docker/cli-plugins/docker-buildx`. `apk add git` for shell-based checkout in container jobs. Smoke test: `docker buildx version`.
@@ -109,7 +109,7 @@ build:
           --push .
 ```
 
-Complete pipeline with auto-tag pattern: [`templates/docker-image-ci.yml`](https://git.mon.k8b.co/tcwlab/templates/src/branch/main/docker-image-ci.yml).
+Complete pipeline with auto-tag pattern: [`templates/docker-image-ci.yml`](https://github.com/tcwlab/templates/blob/main/docker-image-ci.yml).
 
 ---
 
