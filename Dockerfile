@@ -1,15 +1,15 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # tcwlab/buildx — Docker CLI + buildx plugin + git
 #
-# Spezialisiertes CI-Container-Image für Build- und Publish-Jobs.
-# Enthält genau das, was Forgejo-CI-Jobs für docker build / buildx brauchen:
-#   - Docker CLI 29.x  (von docker:29-cli)
-#   - buildx 0.33.0    (von docker/buildx-bin, multi-arch aware)
-#   - git              (für Shell-basiertes Checkout in container:-Jobs)
+# Specialized CI container image for build and publish jobs.
+# Contains exactly what Forgejo CI jobs need for docker build / buildx operations:
+#   - Docker CLI 29.x  (from docker:29-cli)
+#   - buildx 0.33.0    (from docker/buildx-bin, multi-arch aware)
+#   - git              (for shell-based checkout in container: jobs)
 #
-# Kein Node.js — Checkout läuft per Shell (git init + git fetch).
+# No Node.js — checkout runs via shell (git init + git fetch).
 #
-# Usage als CI-Container:
+# Usage as CI container:
 #   container:
 #     image: tcwlab/buildx:0.33.0
 # ─────────────────────────────────────────────────────────────────────────────
