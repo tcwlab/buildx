@@ -1,6 +1,7 @@
 # buildx — Repository Context
 
 > **Onboarding handshake:** Read in this order:
+>
 > 1. `Projects/CLAUDE.md` (global standards, workspace-local)
 > 2. `tcwlab/CLAUDE.md` (toolchain context, workspace-local)
 > 3. This file (buildx-specific)

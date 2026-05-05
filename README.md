@@ -178,6 +178,7 @@ The image is built and published via Forgejo CI to Docker Hub at each SemVer rel
 - **Reproducible**: Dockerfile and CI/CD pipeline are open-source and auditable
 
 Image tags:
+
 - `tcwlab/buildx:0.33.0` — immutable release tag (buildx version)
 - `tcwlab/buildx:latest` — rolling reference to the newest release
 
